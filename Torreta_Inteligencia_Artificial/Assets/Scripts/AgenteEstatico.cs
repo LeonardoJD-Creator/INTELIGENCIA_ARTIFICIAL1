@@ -7,7 +7,7 @@ using UnityEngine;
 */
 
 //Los estados en que puede estar el agente
-public enum AgentState {Idle, OnMovement, Attacking, Dead}
+public enum AgentState { Idle, OnMovement, Attacking, Dead }
 
 public class AgenteEstatico : MonoBehaviour
 {
@@ -20,8 +20,10 @@ public class AgenteEstatico : MonoBehaviour
     [Header("Elementos del sensor")]
     public LayerMask targetMask;        //Para la detección del target a quien queremos detectar
     public float radiusDetection = 2f;  //Un radio de detección
-    public Transform sensorPosition;    //La posición del sensor
+    public Transform SensorPosition;    //La posición del sensor
     public bool targetDetected = false; //Un variable con dos posibles valores para saber si esta en rango el taget
+
+    public GameObject targetObj;
 
     [Header("Elementos del agente")]
     public float speedRotation = 5f; //Velocidad de rotación
@@ -30,9 +32,9 @@ public class AgenteEstatico : MonoBehaviour
     public Vector3[] angles;        //Un arreglo de vectores que guarda los angulos que debe pasar el agente
     public int angleIndex;          //Una variable para recorrer el arreglo uno por uno
 
-    //Añadimos nuestro objeto "Bala" a la lista de objetos Pre Fabricados
     public GameObject prefabBala;
-    public Transform Cañon;
+    public Transform Canon;
+
 
     //Declaración de los estados que tendrá el agente para su ejecución
     public readonly IdleStaticState idleState = new IdleStaticState();
@@ -42,7 +44,9 @@ public class AgenteEstatico : MonoBehaviour
     // Este metodo se manda llamar cuando se ejecuta el proyecto
     void Start()
     {
-        TransitionToState(idleState); //Su primer estado es el Idle
+        targetObj = GameObject.FindGameObjectWithTag("Player");
+
+        TransitionToState(idleState);
     }
 
     // Este metodo se manda llamar cada frame durante la ejecución del proyecto
@@ -62,14 +66,14 @@ public class AgenteEstatico : MonoBehaviour
     */
     public virtual void TargetDetected()
     {
-        Collider[] colliders = Physics.OverlapSphere(sensorPosition.position, radiusDetection, targetMask); //El colisionador guarda en un arreglo los objetos que este detectando y que tengan el layer
-        if(colliders.Length == 0) //Si no hay objetos en los colisionadore
+        Collider[] colliders = Physics.OverlapSphere(SensorPosition.position, radiusDetection, targetMask); //El colisionador guarda en un arreglo los objetos que este detectando y que tengan el layer
+        if (colliders.Length == 0) //Si no hay objetos en los colisionadore
         {
-            targetDetected = false; //No hay target
+            targetDetected = false;
         }
-        else //Si no
+        else
         {
-            targetDetected = true; //El target ha sido detectado
+            targetDetected = true;
         }
     }
 
@@ -80,10 +84,9 @@ public class AgenteEstatico : MonoBehaviour
         curState.EnterState(this);
     }
 
-    //Metodo para generar nuestro PreFab "Bala" con cada disparo realizado desde nuestro Cañon / Torreta
     public void FireBullet()
     {
-        Instantiate(prefabBala, Cañon.position, Cañon.rotation);
+        Instantiate(prefabBala, Canon.position, Canon.rotation);
     }
 
     //Metodo para ejecutar corutinas y nos permitan ejecutar ciertos procesos en un cantidad de tiempo determinada,
@@ -97,6 +100,6 @@ public class AgenteEstatico : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(sensorPosition.position, radiusDetection);
+        Gizmos.DrawWireSphere(SensorPosition.position, radiusDetection);
     }
 }
